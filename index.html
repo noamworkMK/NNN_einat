@@ -1,9 +1,10 @@
+ 
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>index</title>
+    <title>מתי עינת שובר NNN</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Canvas Confetti Library -->
@@ -422,11 +423,16 @@
 
                 if (Array.isArray(data)) {
                     globalBets = data.map(item => {
+                        // חילוץ שם גמיש מכל שם עמודה אפשרי ב-SheetDB
+                        const fetchedName = item.name || item.userName || item.UserName || item.Name || item.username;
+                        const validName = (fetchedName && String(fetchedName).trim() !== "") ? String(fetchedName).trim() : 'אנונימי';
+                        
                         const dayNum = parseInt(item.date || item.day || 1, 10);
-                        const hourStr = item.hour || '20:00';
+                        const hourStr = item.hour || item.time || '20:00';
                         const formattedDay = String(dayNum).padStart(2, '0');
+                        
                         return {
-                            name: item.name || 'אנונימי',
+                            name: validName,
                             day: dayNum,
                             hour: hourStr,
                             dateTime: `${currentYear}-11-${formattedDay}T${hourStr}`
@@ -460,14 +466,21 @@
             const day = parseInt(dayInput.value, 10);
             const hour = timeInput.value;
 
-            if (!name || !day || !hour) return;
+            if (!name) {
+                showToast('שגיאה', 'יש להזין שם או כינוי', false);
+                return;
+            }
+
+            if (!day || !hour) return;
 
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>שולח...</span>';
 
+            // שליחת כפולה לגיבוי עמודות (גם name וגם userName)
             const payload = {
                 data: [{
                     name: name,
+                    userName: name,
                     date: day,
                     hour: hour,
                     "created at": new Date().toLocaleString('he-IL')
@@ -607,3 +620,5 @@
     </script>
 </body>
 </html>
+```eof
+
